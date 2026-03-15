@@ -1,89 +1,235 @@
 # go-flutter-messenger
 
-A simple realtime messenger MVP: Go backend with WebSockets and SQLite, Flutter client with a familiar chat UX.
+Production-ready mobile messenger built with **Flutter + Go + WebSocket + PostgreSQL**.
 
-## Features
+A personal real-time messaging project designed as a **full-stack mobile MVP** with production infrastructure.
 
-- **Login** by username
-- **Chat list** — group and private (1-to-1) chats, create group or private chat
-- **Chat room** — message history, realtime updates, bubbles, presence, typing indicator
-- **Backend:** Go, `net/http`, gorilla/websocket, SQLite
-- **Storage:** rooms (type: group/private), room_members, messages by room_id
-- **Realtime:** WebSocket per room (by roomId); presence and typing events
+---
 
-## Project structure
+# Architecture
+
+| Layer | Technology |
+|-------|------------|
+| Mobile Client | Flutter |
+| Backend | Go (Golang) |
+| Realtime communication | WebSocket |
+| Database | PostgreSQL |
+
+**Infrastructure**
+
+- Docker, Docker Compose, Nginx reverse proxy
+- HTTPS (Let's Encrypt)
+- VPS deployment (Hetzner Cloud)
+
+**Push notifications**
+
+- Firebase Cloud Messaging (FCM)
+
+---
+
+# Features
+
+**Authentication and sessions**
+
+- User registration and login
+- Secure session tokens
+- Profile editing
+
+**Chat system**
+
+- Private chats
+- Group chats
+- Room membership
+
+**Realtime messaging**
+
+- WebSocket messaging
+- Typing indicators
+- Presence / last seen
+
+**Message features**
+
+- Reply to messages
+- Edit messages
+- Delete messages
+- Message reactions
+- Read status / unread counters
+
+**Media**
+
+- Image upload
+- Image messages
+- Fullscreen image viewer
+
+**Search**
+
+- Search messages inside chat
+
+**UX features**
+
+- Scroll to bottom button
+- Date separators
+- Reply preview
+- Chat search
+
+**Push notifications**
+
+- Firebase Cloud Messaging support
+
+---
+
+# Mobile Client
+
+Flutter mobile application with:
+
+- Login / Register
+- Chat list
+- User search
+- Private and group chats
+- Realtime messaging UI
+- Image sending
+- Message reactions
+- Edit / delete messages
+
+---
+
+# Backend
+
+Go backend implementing:
+
+- REST API
+- WebSocket server
+
+**Core modules**
+
+- users, sessions, rooms, room members
+- messages, message reads, message reactions
+- device tokens, user presence
+
+---
+
+# Database
+
+PostgreSQL schema includes:
+
+- users, sessions, rooms, room_members
+- messages, message_reads, message_reactions
+- device_tokens, user_presence
+
+Indexes for performance: message search, room history, device tokens, reactions.
+
+---
+
+# Infrastructure
+
+The project is containerized and deployed using:
+
+- **Docker** + **Docker Compose**
+
+**Services**
+
+- PostgreSQL
+- Go backend
+- Nginx reverse proxy
+
+**Additional**
+
+- HTTPS via Let's Encrypt
+- Firewall configuration (UFW)
+- Automatic container restart
+- Automated PostgreSQL backups
+
+---
+
+# Project Structure
 
 ```
 go-flutter-messenger/
 ├── backend/
-│   ├── main.go        # server, routes, DB init
-│   ├── db.go          # SQLite: rooms, messages
-│   ├── types.go       # Message, Room
-│   ├── websocket.go   # room-scoped hub
-│   ├── handlers.go   # REST + WebSocket handlers
-│   └── go.mod
 ├── client/flutter_app/
-│   └── lib/
-│       ├── main.dart
-│       ├── models/      # message, room
-│       ├── screens/     # login, chat_list, chat
-│       ├── services/    # api_service, chat_service
-│       └── widgets/     # message_bubble, chat_input, empty_chats
-└── README.md
+├── infra/nginx/
+├── docker-compose.yml
+└── Dockerfile
 ```
 
-## Backend
+**Backend**
 
-**Database (SQLite, file `messenger.db` in `backend/`):**
-- `rooms` — id, name, type (group/private), created_at
-- `room_members` — id, room_id, username (for private rooms)
-- `messages` — id, room_id, username, text, timestamp
+- `backend/main.go`, `db.go`, `handlers.go`, `websocket.go`, `auth.go`, `middleware.go`, `push.go`, `uploads.go`, `migrate.go`, `types.go`
+- `backend/migrations/001_init.sql`
 
-**Endpoints:**
-- `GET /rooms?username=<name>` — list group rooms + private rooms for that user; includes last_message_*, sorted by activity
-- `POST /rooms` — create group room (body: `{"name": "Room Name"}`)
-- `POST /rooms/private` — get or create private room (body: `{"current_username": "Alex", "target_username": "Bob"}`)
-- `GET /messages?roomId=<id>` — message history for the room
-- `ws://localhost:8080/ws?roomId=<id>&username=<name>` — WebSocket for realtime chat
+**Flutter client**
 
-**Behaviour:** Messages stored in SQLite; broadcast and presence/typing only within the same room.
+- `client/flutter_app/lib/` — models, services, screens, widgets, utils
 
-### Run backend
+**Infrastructure**
 
-Need **Go** and a C toolchain (for SQLite; on Windows e.g. MinGW/gcc).
+- `infra/nginx/nginx.conf`
+
+---
+
+# Running locally
+
+**Requirements**
+
+- Docker, Docker Compose
+- Flutter SDK
+
+**Start backend stack**
 
 ```bash
-cd backend
-go get github.com/mattn/go-sqlite3
-go run .
+docker compose up -d --build
 ```
 
-Server runs at **http://localhost:8080**. A default room `general` is created on first start. You can create more (e.g. Work, Friends, Ideas) from the app.
+Backend will start with: PostgreSQL, API server, Nginx reverse proxy.
 
-## Flutter app
+---
 
-**Screens:**
-1. **Login** — app title, username field, Continue
-2. **Chats** — list of group + private chats; FABs: new group chat, new private chat (enter username); tap to open
-3. **Chat** — app bar with room/contact name, online status, message list, typing indicator, input + send
+# Flutter client
 
-**UI:** Messenger-style layout, rounded bubbles, clear spacing, loading and empty states.
+Navigate to:
 
-### Run Flutter app
+```
+client/flutter_app
+```
 
-Need **Flutter** in `PATH`.
+Install dependencies:
 
 ```bash
-cd client/flutter_app
 flutter pub get
+```
+
+Run on device:
+
+```bash
 flutter run
 ```
 
-Select a device (Chrome, Windows, etc.). Start the backend first.
+---
 
-## Quick test
+# Production deployment
 
-1. **Backend:** `cd backend && go get github.com/mattn/go-sqlite3 && go run .`
-2. **Flutter:** `cd client/flutter_app && flutter pub get && flutter run`
-3. Enter username → Continue → open a chat (e.g. General) or create one (Work, Friends, …) → send messages.
-4. Open another client; history loads, new messages appear in realtime in the same room.
+The project is deployed on a VPS with:
+
+- Docker Compose stack
+- Nginx reverse proxy
+- HTTPS via Let's Encrypt
+
+**External access**
+
+- https://pmforu.it.com
+
+---
+
+# Screenshots
+
+(you can add screenshots of the chat UI here)
+
+---
+
+# Author
+
+**Alexander Shvetsov**
+
+Backend Developer (Python / Java)
+
+- GitHub: https://github.com/volkrist

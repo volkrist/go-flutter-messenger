@@ -1,0 +1,11 @@
+Эти команды запускать ТОЛЬКО на сервере (SSH: alex@89.167.112.246), не в PowerShell на ПК.
+
+cd /opt/go-flutter-messenger
+grep FCM .env
+docker compose build --no-cache backend
+docker compose up -d backend
+docker logs go-flutter-messenger-backend 2>&1 | head -20
+
+Если в .env нет FCM_PROJECT_ID — добавь:
+  FCM_PROJECT_ID=massangerpm
+  FCM_SERVICE_ACCOUNT_JSON=/app/secrets/firebase-service-account.json

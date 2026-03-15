@@ -1,0 +1,11 @@
+ios/Runner.xcworkspace
+
+Полный путь (на Mac, если проект скопирован):
+<путь_к_проекту>/flutter_app/ios/Runner.xcworkspace
+
+Как открыть в Xcode:
+1. На Mac открой Xcode.
+2. File → Open… (или Cmd+O).
+3. Укажи папку ios и выбери Runner.xcworkspace (именно .xcworkspace, не .xcodeproj).
+4. Или в терминале из папки flutter_app:
+   open ios/Runner.xcworkspace

@@ -1,59 +1,96 @@
 # go-flutter-messenger
 
-Production-ready mobile messenger built with **Flutter + Go + WebSocket + PostgreSQL**.
+Production-ready **mobile messenger** built with **Flutter + Go + WebSocket + PostgreSQL**.
 
-A personal real-time messaging project designed as a **full-stack mobile MVP** with production infrastructure.
+This project demonstrates a complete full-stack messaging system with realtime communication, mobile client, backend services, and production infrastructure.
+
+Repository:  
+https://github.com/volkrist/go-flutter-messenger
 
 ---
 
-# Architecture
+# Overview
+
+The project was designed as a **mobile-first MVP messenger** and later evolved into a **production-style architecture** including containerization, reverse proxy, HTTPS, and server deployment.
+
+The system supports realtime messaging, media uploads, chat management, and push notification infrastructure.
+
+---
+
+# Tech Stack
 
 | Layer | Technology |
 |-------|------------|
 | Mobile Client | Flutter |
 | Backend | Go (Golang) |
-| Realtime communication | WebSocket |
+| Realtime | WebSocket |
 | Database | PostgreSQL |
+| Infrastructure | Docker, Docker Compose, Nginx, HTTPS (Let's Encrypt), VPS deployment |
+| Push Notifications | Firebase Cloud Messaging |
 
-**Infrastructure**
+---
 
-- Docker, Docker Compose, Nginx reverse proxy
-- HTTPS (Let's Encrypt)
-- VPS deployment (Hetzner Cloud)
+# Architecture
 
-**Push notifications**
-
-- Firebase Cloud Messaging (FCM)
+```
+Flutter Mobile App
+        │
+        │ HTTPS / WebSocket
+        │
+        ▼
+     Nginx
+  Reverse Proxy
+        │
+        │
+        ▼
+   Go Backend
+ REST API + WS
+        │
+        │
+        ▼
+PostgreSQL Database
+```
 
 ---
 
 # Features
 
-**Authentication and sessions**
+**Authentication**
 
-- User registration and login
-- Secure session tokens
-- Profile editing
+- User registration
+- Login
+- Session tokens
+- Profile management
 
-**Chat system**
+**Chats**
 
 - Private chats
 - Group chats
 - Room membership
 
-**Realtime messaging**
+**Realtime**
 
 - WebSocket messaging
 - Typing indicators
-- Presence / last seen
+- Presence
+- Last seen
 
-**Message features**
+**Messages**
 
+- Send messages
 - Reply to messages
 - Edit messages
 - Delete messages
+
+**Reactions**
+
 - Message reactions
-- Read status / unread counters
+- Reaction counters
+
+**Read tracking**
+
+- Read status
+- Unread counters
 
 **Media**
 
@@ -65,79 +102,97 @@ A personal real-time messaging project designed as a **full-stack mobile MVP** w
 
 - Search messages inside chat
 
-**UX features**
+**UX**
 
-- Scroll to bottom button
-- Date separators
 - Reply preview
+- Scroll-to-bottom button
+- Date separators
 - Chat search
 
-**Push notifications**
+**Push Notifications**
 
-- Firebase Cloud Messaging support
+- Firebase Cloud Messaging infrastructure
 
 ---
 
 # Mobile Client
 
-Flutter mobile application with:
+Flutter mobile application providing the full messaging interface.
 
-- Login / Register
+**Implemented screens:**
+
+- Login
+- Register
 - Chat list
+- Chat screen
 - User search
-- Private and group chats
-- Realtime messaging UI
-- Image sending
+- Group management
+- Profile
+- Settings
+
+**Messaging UI includes:**
+
+- Realtime message updates
 - Message reactions
+- Image sending
+- Reply previews
 - Edit / delete messages
 
 ---
 
 # Backend
 
-Go backend implementing:
+Go backend responsible for messaging logic and realtime communication.
+
+**Core components:**
 
 - REST API
 - WebSocket server
-
-**Core modules**
-
-- users, sessions, rooms, room members
-- messages, message reads, message reactions
-- device tokens, user presence
+- Authentication system
+- Session management
+- Chat and room management
+- Message storage
+- Presence tracking
+- Push notification integration
 
 ---
 
 # Database
 
-PostgreSQL schema includes:
+PostgreSQL database schema includes:
 
 - users, sessions, rooms, room_members
 - messages, message_reads, message_reactions
 - device_tokens, user_presence
 
-Indexes for performance: message search, room history, device tokens, reactions.
+**Indexes are used for:**
+
+- Message history queries
+- Message search
+- Room membership lookups
+- Reaction queries
+- Device token lookup
 
 ---
 
 # Infrastructure
 
-The project is containerized and deployed using:
-
-- **Docker** + **Docker Compose**
+The project uses containerized infrastructure.
 
 **Services**
 
-- PostgreSQL
+- PostgreSQL database
 - Go backend
 - Nginx reverse proxy
 
-**Additional**
+**Infrastructure capabilities**
 
+- Docker containerization
+- Docker Compose orchestration
 - HTTPS via Let's Encrypt
-- Firewall configuration (UFW)
+- Firewall configuration
 - Automatic container restart
-- Automated PostgreSQL backups
+- PostgreSQL backup
 
 ---
 
@@ -146,47 +201,48 @@ The project is containerized and deployed using:
 ```
 go-flutter-messenger/
 ├── backend/
+│   ├── main.go, db.go, handlers.go, websocket.go
+│   ├── auth.go, middleware.go, push.go, uploads.go
+│   ├── migrate.go, types.go
+│   └── migrations/
+│       └── 001_init.sql
 ├── client/flutter_app/
+│   └── lib/
+│       ├── models, services, screens, widgets, utils
+│       ├── main.dart, config.dart
 ├── infra/nginx/
+│   └── nginx.conf
+├── Dockerfile
 ├── docker-compose.yml
-└── Dockerfile
+└── .env.example
 ```
-
-**Backend**
-
-- `backend/main.go`, `db.go`, `handlers.go`, `websocket.go`, `auth.go`, `middleware.go`, `push.go`, `uploads.go`, `migrate.go`, `types.go`
-- `backend/migrations/001_init.sql`
-
-**Flutter client**
-
-- `client/flutter_app/lib/` — models, services, screens, widgets, utils
-
-**Infrastructure**
-
-- `infra/nginx/nginx.conf`
 
 ---
 
-# Running locally
+# Running Locally
 
 **Requirements**
 
 - Docker, Docker Compose
 - Flutter SDK
 
-**Start backend stack**
+**Start backend services**
 
 ```bash
 docker compose up -d --build
 ```
 
-Backend will start with: PostgreSQL, API server, Nginx reverse proxy.
+This will start:
+
+- PostgreSQL
+- Go backend
+- Nginx reverse proxy
 
 ---
 
-# Flutter client
+# Running Mobile Client
 
-Navigate to:
+Navigate to the Flutter client:
 
 ```
 client/flutter_app
@@ -198,7 +254,7 @@ Install dependencies:
 flutter pub get
 ```
 
-Run on device:
+Run on device or emulator:
 
 ```bash
 flutter run
@@ -206,23 +262,30 @@ flutter run
 
 ---
 
-# Production deployment
+# Production Deployment
 
-The project is deployed on a VPS with:
+The project is deployed on a VPS using Docker Compose.
 
-- Docker Compose stack
-- Nginx reverse proxy
+**Infrastructure includes:**
+
+- Reverse proxy via Nginx
 - HTTPS via Let's Encrypt
+- Containerized services
+- Firewall configuration
+- Automated PostgreSQL backups
 
-**External access**
+**External access:**
 
 - https://pmforu.it.com
 
 ---
 
-# Screenshots
+# Development Highlights
 
-(you can add screenshots of the chat UI here)
+- Realtime messaging implemented via WebSocket.
+- Backend migrated from SQLite to PostgreSQL with SQL migrations.
+- Production infrastructure implemented with: Docker, Docker Compose, Nginx, HTTPS, VPS deployment.
+- Push notification infrastructure prepared using Firebase Cloud Messaging.
 
 ---
 
@@ -230,6 +293,7 @@ The project is deployed on a VPS with:
 
 **Alexander Shvetsov**
 
-Backend Developer (Python / Java)
+Backend Developer  
+Python (FastAPI) · Java (Spring Boot)
 
 - GitHub: https://github.com/volkrist
